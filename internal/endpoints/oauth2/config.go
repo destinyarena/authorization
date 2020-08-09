@@ -1,6 +1,7 @@
 package oauth2
 
 type (
+	// Config is the oauth2 configuration
 	Config struct {
 		DiscordGuildID      string `env:"DISCORD_GUILD_ID,required"`
 		DiscordClientID     string `env:"FACEIT_CLIENT_ID,required"`
@@ -15,6 +16,7 @@ type (
 	}
 )
 
+// LoadConfig returns config for oauth2
 func LoadConfig() (*Config, error) {
 
 	return &Config{}, nil
