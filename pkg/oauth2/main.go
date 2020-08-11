@@ -12,6 +12,7 @@ type (
 	Oauth2 interface {
 		GetToken(string, interface{}) error
 		FetchURL(*string) (string, error)
+		GetBaseAPI() string
 	}
 )
 
