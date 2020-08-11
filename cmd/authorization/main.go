@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/arturoguerra/go-logging"
 	"github.com/destinyarena/authorization/internal/endpoints/oauth2"
 	"github.com/destinyarena/authorization/internal/router"
@@ -17,7 +19,7 @@ func main() {
 
 	r := router.New(log, rconfig)
 
-	oauth2Group := r.Group("/api/oauth2", middleware.Logger())
+	oauth2Group := r.Group("/api/oauth", middleware.Logger())
 
 	oauth2Config, err := oauth2.LoadConfig()
 	if err != nil {
@@ -30,4 +32,7 @@ func main() {
 	}
 
 	oauth2Handler.Register(oauth2Group)
+
+	log.Infof("Running on %s:%s", rconfig.Host, rconfig.Port)
+	r.Logger.Fatal(r.Start(fmt.Sprintf("%s:%s", rconfig.Host, rconfig.Port)))
 }
