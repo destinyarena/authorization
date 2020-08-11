@@ -9,7 +9,7 @@ type (
 		DiscordClientID     string   `env:"DISCORD_CLIENT_ID,required"`
 		DiscordClientSecret string   `env:"DISCORD_CLIENT_SECRET,required"`
 		DiscordRedirectURI  string   `env:"DISCORD_REDIRECT_URI,required"`
-		DiscordBannedGuilds []string `env:"DISCORD_GUILDS" envSperator:","`
+		DiscordBannedGuilds []string `env:"DISCORD_BANNED_GUILDS" envSperator:","`
 
 		BungieClientID     string `env:"BUNGIE_CLIENT_ID,required"`
 		BungieClientSecret string `env:"BUNGIE_CLIENT_SECRET,required"`
