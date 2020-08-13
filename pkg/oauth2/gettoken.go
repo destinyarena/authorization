@@ -17,7 +17,10 @@ func (o *oauth2) GetToken(code string, respStruct interface{}) error {
 	data := url.Values{}
 	data.Set("grant_type", "authorization_code")
 	data.Set("code", code)
-	data.Set("scope", o.Provider.Scope)
+
+	if len(o.Provider.Scope) != 0 {
+		data.Set("scope", o.Provider.Scope)
+	}
 
 	if o.Provider.RedirectURI != nil {
 		data.Set("redirect_uri", *o.Provider.RedirectURI)

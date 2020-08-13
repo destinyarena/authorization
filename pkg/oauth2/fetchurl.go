@@ -9,7 +9,11 @@ func (o *oauth2) FetchURL(state *string) (string, error) {
 	data := url.Values{}
 	data.Set("response_type", o.Provider.ResponseType)
 	data.Set("client_id", o.Provider.ClientID)
-	data.Set("scope", o.Provider.Scope)
+
+	if len(o.Provider.Scope) != 0 {
+		data.Set("scope", o.Provider.Scope)
+	}
+
 	if o.Provider.RedirectURI != nil {
 		data.Set("redirect_uri", *o.Provider.RedirectURI)
 	}

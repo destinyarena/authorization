@@ -19,7 +19,7 @@ func main() {
 
 	r := router.New(log, rconfig)
 
-	oauth2Group := r.Group("/api/oauth", middleware.Logger())
+	oauth2Group := r.Group("/api/v2/oauth", middleware.Logger())
 
 	oauth2Config, err := oauth2.LoadConfig()
 	if err != nil {

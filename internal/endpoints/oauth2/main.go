@@ -64,7 +64,8 @@ func New(logger *logrus.Logger, config *Config) (Handler, error) {
 		ClientID:     config.BungieClientID,
 		ClientSecret: config.BungieClientSecret,
 		ResponseType: "code",
-		Scope:        "ReadBasicUserProfile",
+		Scope:        "",
+		//Scope:        "ReadBasicUserProfile",
 	}
 
 	bungie, err := oauth2.New(bungieProvider)

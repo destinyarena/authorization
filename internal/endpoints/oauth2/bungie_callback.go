@@ -15,12 +15,12 @@ type (
 		Response    *bungieUserMembership `json:"Response" validate:"required"`
 		Message     string                `json:"Message"`
 		ErrorStatus string                `json:"ErrorStatus"`
-		ErrorCode   string                `json:"ErrorCode"`
+		ErrorCode   int                   `json:"ErrorCode"`
 	}
 
 	bungieUserMembership struct {
-		PrimaryMembershipID int         `json:"primaryMembershipId"`
-		BungieNetUser       *bungieUser `json:"bungieNetUser" validate:"required"`
+		//PrimaryMembershipID int         `json:"primaryMembershipId"`
+		BungieNetUser *bungieUser `json:"bungieNetUser" validate:"required"`
 	}
 
 	bungieUser struct {
@@ -52,13 +52,13 @@ func (h *handler) getBungieUser(token string) (*bungieUser, error) {
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode > 299 {
-		return nil, fmt.Errorf("Error code: %d", resp.StatusCode)
-	}
-
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode > 299 {
+		return nil, fmt.Errorf("Error code: %d", resp.StatusCode)
 	}
 
 	var payload bungieUserResponse
