@@ -119,16 +119,24 @@ func (h *handler) discordCallback(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
+	h.Logger.Infof("Discord ID: %s Username: %s#%s", user.ID, user.Username, user.Discriminator)
+
 	guilds, err := h.getDiscordGuilds(tokenpayload.AccessToken)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
+	for _, guild := range guilds {
+		h.Logger.Infof("Guild ID: %s Name: %s", guild.ID, guild.Name)
+	}
+
 	if ok := checkDiscordGuilds(guilds, h.Config.DiscordGuildID); !ok {
+		h.Logger.Infof("Discord ID: %s Username: %s#%s is not in the guild", user.ID, user.Username, user.Discriminator)
 		return c.String(http.StatusUnauthorized, "please join our server before attempting to register")
 	}
 
 	if banned := bannedDiscordGuilds(guilds, h.Config.DiscordBannedGuilds); banned {
+		h.Logger.Infof("Discord ID: %s Username: %s#%s is in a banned guild", user.ID, user.Username, user.Discriminator)
 		return c.String(http.StatusForbidden, "Looks like you are in a banned guild")
 	}
 
