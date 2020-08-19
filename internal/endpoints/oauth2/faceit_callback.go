@@ -5,15 +5,24 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/destinyarena/authorization/pkg/oauth2"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 )
 
-type faceitUser struct {
-	GUID     string `json:"guid"`
-	Nickname string `json:"nickname"`
-}
+type (
+	faceitUser struct {
+		GUID     string `json:"guid"`
+		Nickname string `json:"nickname"`
+	}
+
+	jwtFaceitClaim struct {
+		faceitUser
+		jwt.StandardClaims
+	}
+)
 
 func (h *handler) getFaceitUser(token string) (*faceitUser, error) {
 	client := new(http.Client)
@@ -67,7 +76,23 @@ func (h *handler) faceitCallback(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	// TODO add JWT encapsulation and return that instead
+	claims := &jwtFaceitClaim{
+		faceitUser: *user,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * time.Duration(1)).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+	}
 
-	return c.JSON(http.StatusOK, user)
+	token, err := h.JWTManager.Sign(claims)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	data := map[string]interface{}{
+		"token": token,
+		"user":  &user,
+	}
+
+	return c.JSON(http.StatusOK, data)
 }

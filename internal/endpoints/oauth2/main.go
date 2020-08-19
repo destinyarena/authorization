@@ -1,6 +1,7 @@
 package oauth2
 
 import (
+	"github.com/destinyarena/authorization/internal/jwtmanager"
 	"github.com/destinyarena/authorization/pkg/oauth2"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
@@ -13,9 +14,10 @@ type (
 		Bungie  oauth2.Oauth2
 	}
 	handler struct {
-		Logger    *logrus.Logger
-		Config    *Config
-		Providers *providers
+		Logger     *logrus.Logger
+		Config     *Config
+		Providers  *providers
+		JWTManager jwtmanager.JWTManager
 	}
 
 	// Handler exports the register hook used to register with echo
@@ -25,7 +27,7 @@ type (
 )
 
 // New creates a new handler
-func New(logger *logrus.Logger, config *Config) (Handler, error) {
+func New(logger *logrus.Logger, config *Config, jwtManager jwtmanager.JWTManager) (Handler, error) {
 	discordProvider := &oauth2.Provider{
 		AuthorizeURL: "https://discord.com/oauth2/authorize",
 		BaseAPI:      "https://discord.com/api/v6",
@@ -80,9 +82,10 @@ func New(logger *logrus.Logger, config *Config) (Handler, error) {
 	}
 
 	return &handler{
-		Logger:    logger,
-		Config:    config,
-		Providers: providers,
+		Logger:     logger,
+		Config:     config,
+		Providers:  providers,
+		JWTManager: jwtManager,
 	}, nil
 }
 

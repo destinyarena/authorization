@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/destinyarena/authorization/pkg/oauth2"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 )
 
@@ -19,8 +21,8 @@ type (
 	}
 
 	bungieUserMembership struct {
-		//PrimaryMembershipID int         `json:"primaryMembershipId"`
-		BungieNetUser *bungieUser `json:"bungieNetUser" validate:"required"`
+		PrimaryMembershipID string      `json:"primaryMembershipId"`
+		BungieNetUser       *bungieUser `json:"bungieNetUser" validate:"required"`
 	}
 
 	bungieUser struct {
@@ -30,6 +32,11 @@ type (
 		XboxDisplayName     string `json:"xboxDisplayName,omitempty"`
 		PSNDisplayName      string `json:"psnDisplayName,omitempty"`
 		BlizzardDisplayName string `json:"blizzardDisplayName,omitempty"`
+	}
+
+	jwtBungieClaim struct {
+		bungieUser
+		jwt.StandardClaims
 	}
 )
 
@@ -88,8 +95,23 @@ func (h *handler) bungieCallback(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	// TODO add JWT encapsulation and return that instead of the user struct
+	claims := &jwtBungieClaim{
+		bungieUser: *user,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * time.Duration(1)).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+	}
 
-	return c.JSON(http.StatusOK, user)
+	token, err := h.JWTManager.Sign(claims)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
 
+	data := map[string]interface{}{
+		"token": token,
+		"user":  &user,
+	}
+
+	return c.JSON(http.StatusOK, data)
 }

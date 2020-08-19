@@ -1,62 +1,46 @@
 package jwtmanager
 
 import (
-	"crypto/rsa"
-	"io/ioutil"
+	"errors"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/sirupsen/logrus"
 )
 
 type (
 	jwtManager struct {
 		SigningMethod jwt.SigningMethod
-		VerifyKey     *rsa.PublicKey
-		SignKey       *rsa.PrivateKey
+		Secret        string
+		Logger        *logrus.Logger
 	}
 
 	// JWTManager handles are the exported functions replated to jwtManager
 	JWTManager interface {
-		Sign(interface{}) (string, error)
-		Decrypt(string, interface{}) error
+		Sign(jwt.Claims) (string, error)
+		Decrypt(string, jwt.Claims) error
 	}
 )
 
 // NewDefault generates config and returns a new JWTManager
-func NewDefault() (JWTManager, error) {
+func NewDefault(logger *logrus.Logger) (JWTManager, error) {
 	cfg, err := newEnvConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	jwt, err := New(cfg)
+	jwt, err := New(cfg, logger)
 	return jwt, err
 }
 
 // New returns a new jwt manager
-func New(cfg *Config) (JWTManager, error) {
-	signBytes, err := ioutil.ReadFile(cfg.PrivKeyPath)
-	if err != nil {
-		return nil, err
-	}
-
-	signKey, err := jwt.ParseRSAPrivateKeyFromPEM(signBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	verifyBytes, err := ioutil.ReadFile(cfg.PubKeyPath)
-	if err != nil {
-		return nil, err
-	}
-
-	verifyKey, err := jwt.ParseRSAPublicKeyFromPEM(verifyBytes)
-	if err != nil {
-		return nil, err
+func New(cfg *Config, logger *logrus.Logger) (JWTManager, error) {
+	if len(cfg.Secret) == 0 {
+		return nil, errors.New("Invalid secret")
 	}
 
 	return &jwtManager{
-		SigningMethod: jwt.GetSigningMethod("RS256"),
-		VerifyKey:     verifyKey,
-		SignKey:       signKey,
+		SigningMethod: jwt.GetSigningMethod("HS256"),
+		Secret:        cfg.Secret,
+		Logger:        logger,
 	}, nil
 }

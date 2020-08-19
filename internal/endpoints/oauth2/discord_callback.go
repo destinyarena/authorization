@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/destinyarena/authorization/pkg/oauth2"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 )
 
@@ -20,6 +22,11 @@ type (
 	discordGuild struct {
 		ID   string `json:"id"`
 		Name string `json:"name"`
+	}
+
+	jwtDiscordClaim struct {
+		discordUser
+		jwt.StandardClaims
 	}
 )
 
@@ -125,9 +132,26 @@ func (h *handler) discordCallback(c echo.Context) error {
 		return c.String(http.StatusForbidden, "Looks like you are in a banned guild")
 	}
 
+	claims := &jwtDiscordClaim{
+		discordUser: *user,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * time.Duration(1)).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+	}
+
+	token, err := h.JWTManager.Sign(claims)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
 	// TODO add JWT encapsulation and return that instead of user json
 
-	return c.JSON(http.StatusOK, user)
+	data := map[string]interface{}{
+		"token": token,
+		"user":  &user,
+	}
+
+	return c.JSON(http.StatusOK, data)
 }
 
 func checkDiscordGuilds(guilds []*discordGuild, ID string) bool {

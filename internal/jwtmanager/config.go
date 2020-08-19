@@ -5,8 +5,7 @@ import "github.com/destinyarena/authorization/internal/utils"
 type (
 	// Config holds configuration info for jwtmanager
 	Config struct {
-		PrivKeyPath string `env:"JWT_PRIV_KEY_PATH" envDefault:"/etc/keys/rsa"`
-		PubKeyPath  string `env:"JWT_PUB_KEY_PATH" envDefault:"/etc/keys/rsa.pub"`
+		Secret string `env:"JWT_SECRET" envDefault:"testing"`
 	}
 )
 
