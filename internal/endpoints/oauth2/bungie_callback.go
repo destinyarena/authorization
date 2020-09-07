@@ -2,6 +2,7 @@ package oauth2
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -21,17 +22,18 @@ type (
 	}
 
 	bungieUserMembership struct {
-		PrimaryMembershipID string      `json:"primaryMembershipId"`
-		BungieNetUser       *bungieUser `json:"bungieNetUser" validate:"required"`
+		BungieNetUser *bungieUser `json:"bungieNetUser" validate:"required"`
 	}
 
 	bungieUser struct {
-		ID                  string `json:"membershipId" validate:"required"`
-		DisplayName         string `json:"displayName" validate:"required"`
-		SteamDisplayName    string `json:"steamDisplayName,omitempty"`
-		XboxDisplayName     string `json:"xboxDisplayName,omitempty"`
-		PSNDisplayName      string `json:"psnDisplayName,omitempty"`
-		BlizzardDisplayName string `json:"blizzardDisplayName,omitempty"`
+		ID                  string     `json:"membershipId" validate:"required"`
+		DisplayName         string     `json:"displayName" validate:"required"`
+		SteamDisplayName    string     `json:"steamDisplayName,omitempty"`
+		XboxDisplayName     string     `json:"xboxDisplayName,omitempty"`
+		PSNDisplayName      string     `json:"psnDisplayName,omitempty"`
+		BlizzardDisplayName string     `json:"blizzardDisplayName,omitempty"`
+		TwitchDisplayName   string     `json:"twitchDisplayName,omitempty"`
+		FirstAccess         *time.Time `json:"firstAccess,omitempty"`
 	}
 
 	jwtBungieClaim struct {
@@ -93,6 +95,25 @@ func (h *handler) bungieCallback(c echo.Context) error {
 	if err != nil {
 		h.Logger.Error(err)
 		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	if len(user.SteamDisplayName) == 0 {
+		err = errors.New("You must have a steam account linked")
+		h.Logger.Error(err)
+		return c.String(401, err.Error())
+	}
+
+	if user.FirstAccess == nil {
+		err = errors.New("Looks like you've never played Destiny 2 before.")
+		h.Logger.Error(err)
+		return c.String(401, err.Error())
+	}
+
+	bestbefore := time.Now().Add(-730 * time.Hour)
+
+	if !bestbefore.After(*user.FirstAccess) {
+		h.Logger.Infof("Account ID: %s Name: %s Created at: %v", user.ID, user.DisplayName, (*user.FirstAccess))
+		return c.String(401, "Your account must be older than 30 days to play faceit.")
 	}
 
 	claims := &jwtBungieClaim{
