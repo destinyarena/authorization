@@ -11,7 +11,5 @@ func New(logger *logrus.Logger, config *Config) *echo.Echo {
 	r := echo.New()
 
 	r.Use(middleware.Recover())
-	r.Use(middleware.Logger())
-
 	return r
 }
