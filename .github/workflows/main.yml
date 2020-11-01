@@ -1,13 +1,17 @@
-name: Build Image and Deploy
+name: Build and Deploy
+
 on:
   push:
     branches: master
 
 jobs:
-  buildanddeploy:
+  build:
+    name: Build
     runs-on: ubuntu-latest
+    env:
+      APPNAME: authorization
     steps:
-    - name: Checkout 
+    - name: Checkout
       uses: actions/checkout@v2
     - name: Setup QEMU
       uses: docker/setup-qemu-action@v1
@@ -24,8 +28,17 @@ jobs:
       with:
         push: true
         tags: |
-          harbor.ar2ro.io/destinyarena/authorization:latest
-          harbor.ar2ro.io/destinyarena/authorization:${{ github.sha }}
+          harbor.ar2ro.io/destinyarena/${{ APPNAME }}:latest
+          harbor.ar2ro.io/destinyarena/${{ APPNAME }}:${{ github.sha }}
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      APPNAME: authorization
+      
+    steps:
     - name: Checkout Helm Repo
       uses: actions/checkout@v2
       with:
@@ -39,11 +52,11 @@ jobs:
         sudo apt install yq -y
     - name: Update the Helm Chart values.yaml
       run: |
-        yq w -i values.yaml authorization.image.tag ${{ github.sha }}
+        yq w -i values.yaml ${{ APPNAME }}.image.tag ${{ github.sha }}
     - name: Commit and Push
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
-        git commit -am "Authorization Tag: ${{ github.sha }}"
+        git commit -am "Updating Image Tag: ${{ github.sha }}"
         git push origin master
 
