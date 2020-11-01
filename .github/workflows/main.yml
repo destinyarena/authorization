@@ -42,7 +42,7 @@ jobs:
     - name: Commit and Push
       uses: EndBug/add-and-commit@v5
       with:
-        auhtor_name: "github-actions"
+        author_name: "github-actions"
         author_email: "github-actions@github.com"
         message: "Updated Tag to v1.0.0"
       env:
