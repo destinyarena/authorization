@@ -41,9 +41,10 @@ jobs:
       run: |
         yq w -i values.yaml authorization.image.tag v1.0.0
     - name: Commit and Push
-      run: |
-        git config user.name github-actions
-        git config user.email github-actions@github.com
-        git add .
-        git commit -m "Updated Authorization Tag to v1.0.0"
-        git push
+      uses: EndBug/add-and-commit@v5
+      with:
+        auhtor_name: "github-actions"
+        author_email: "github-actions@github.com"
+        message: "Updated Tag to v1.0.0"
+      env:
+        GTIHUB_TOKEN: ${{ secrets.DESTINYARENA_ACTIONS }}
