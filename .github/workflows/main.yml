@@ -30,6 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Helm Repo
+        uses: actions/checkout@v2
         with:
           repository: destinyarena/helm-charts
       - name: Installs yq
