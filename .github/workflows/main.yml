@@ -26,7 +26,7 @@ jobs:
         push: true
         tags: |
           harbor.ar2ro.io/destinyarena/authorization:latest
-          harbor.ar2ro.io/destinyarena/authorization:${{ github.sha }}
+          harbor.ar2ro.io/destinyarena/authorization:v1.0.0
     - name: Checkout Helm Repo
       uses: actions/checkout@v2
       with:
@@ -39,11 +39,11 @@ jobs:
         sudo apt install yq -y
     - name: Update the Helm Chart values.yaml
       run: |
-        yq w -i values.yaml authorization.image.tag ${{ github.sha }}
+        yq w -i values.yaml authorization.image.tag v1.0.0
     - name: Commit and Push
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
         git add .
-        git commit -m "Updated Authorization Tag to ${{ github.sha }}"
+        git commit -m "Updated Authorization Tag to v1.0.0"
         git push origin master
