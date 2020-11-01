@@ -44,6 +44,6 @@ jobs:
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
-        git commit -m "My NAME IS JEFF"
+        git commit -am "My NAME IS JEFF"
         git push origin master
 
