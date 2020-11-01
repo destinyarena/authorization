@@ -4,7 +4,7 @@ on:
     branches: master
 
 jobs:
-  build:
+  buildanddeploy:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout 
@@ -26,26 +26,23 @@ jobs:
         tags: |
           harbor.ar2ro.io/destinyarena/authorization:latest
           harbor.ar2ro.io/destinyarena/authorization:${{ github.sha }}
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Helm Repo
-        uses: actions/checkout@v2
-        with:
-          repository: destinyarena/helm-charts
-      - name: Installs yq
-        run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
-          sudo add-apt-repository ppa:rmescandon/yq
-          sudo apt update
-          sudo apt install yq -y
-      - name: Update the Helm Chart values.yaml
-        run: |
-          yq w -i values.yaml authorization.image.tag ${{ github.sha }}
-      - name: Commit and Push
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add .
-          git commit -m "Updated Authorization Tag to ${{ github.sha }}
-          git push origin master
+    - name: Checkout Helm Repo
+      uses: actions/checkout@v2
+      with:
+        repository: destinyarena/helm-charts
+    - name: Installs yq
+      run: |
+        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
+        sudo add-apt-repository ppa:rmescandon/yq
+        sudo apt update
+        sudo apt install yq -y
+    - name: Update the Helm Chart values.yaml
+      run: |
+        yq w -i values.yaml authorization.image.tag ${{ github.sha }}
+    - name: Commit and Push
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add .
+        git commit -m "Updated Authorization Tag to ${{ github.sha }}"
+        git push origin master
