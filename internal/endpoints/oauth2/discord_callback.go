@@ -109,13 +109,13 @@ func (h *handler) discordCallback(c echo.Context) error {
 
 	tokenpayload := oauth2.Token{}
 	if err := h.Providers.Discord.GetToken(payload.Code, &tokenpayload); err != nil {
-		h.Logger.Error(err)
+		h.Logger.Error("Error fetching discord token: %s", err.Error())
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	user, err := h.getDiscordUser(tokenpayload.AccessToken)
 	if err != nil {
-		h.Logger.Error(err)
+		h.Logger.Error("Error fetching Discord User: %s", err.Error())
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
@@ -123,6 +123,7 @@ func (h *handler) discordCallback(c echo.Context) error {
 
 	guilds, err := h.getDiscordGuilds(tokenpayload.AccessToken)
 	if err != nil {
+		h.Logger.Errorf("Error fetching Guilds: %s", err.Error())
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 

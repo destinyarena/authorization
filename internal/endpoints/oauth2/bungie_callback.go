@@ -104,7 +104,7 @@ func (h *handler) bungieCallback(c echo.Context) error {
 	}
 
 	if user.FirstAccess == nil {
-		err = errors.New("Looks like you've never played Destiny 2 before.")
+		err = errors.New("Looks like you've never played Destiny 2 before")
 		h.Logger.Error(err)
 		return c.String(401, err.Error())
 	}
