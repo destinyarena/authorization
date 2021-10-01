@@ -97,11 +97,13 @@ func (h *handler) bungieCallback(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
+	/* SteamID Check
 	if len(user.SteamDisplayName) == 0 {
 		err = errors.New("You must have a steam account linked")
 		h.Logger.Error(err)
 		return c.String(401, err.Error())
 	}
+	*/
 
 	if user.FirstAccess == nil {
 		err = errors.New("Looks like you've never played Destiny 2 before")
