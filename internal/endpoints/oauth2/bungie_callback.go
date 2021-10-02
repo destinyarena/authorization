@@ -104,6 +104,8 @@ func (h *handler) bungieCallback(c echo.Context) error {
 		return c.String(401, err.Error())
 	}
 	*/
+	
+	h.Logger.Info(user)
 
 	if user.FirstAccess == nil {
 		err = errors.New("Looks like you've never played Destiny 2 before")
@@ -111,12 +113,14 @@ func (h *handler) bungieCallback(c echo.Context) error {
 		return c.String(401, err.Error())
 	}
 
+	/* checks account age
 	bestbefore := time.Now().Add(-730 * time.Hour)
 
 	if !bestbefore.After(*user.FirstAccess) {
 		h.Logger.Infof("Account ID: %s Name: %s Created at: %v", user.ID, user.DisplayName, (*user.FirstAccess))
 		return c.String(401, "Your account must be older than 30 days to play faceit.")
 	}
+	*/
 
 	claims := &jwtBungieClaim{
 		bungieUser: *user,
