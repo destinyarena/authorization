@@ -32,30 +32,30 @@ jobs:
           ghcr.io/destinyarena/${{ env.APPNAME }}:latest
           ghcr.io/destinyarena/${{ env.APPNAME }}:${{ github.sha }}
 
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-    - name: Checkout Helm Repo
-      uses: actions/checkout@v2
-      with:
-        repository: destinyarena/helm-charts
-        token: ${{ secrets.DESTINYARENA_ACTIONS }}
-    - name: Installs yq
-      run: |
-        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
-        sudo add-apt-repository ppa:rmescandon/yq
-        sudo apt update
-        sudo apt install yq -y
-    - name: Update the Helm Chart values.yaml
-      run: |
-        yq w -i values.yaml ${{ env.APPNAME }}.image.tag ${{ github.sha }}
-    - name: Commit and Push
-      run: |
-        git config user.name "github-actions"
-        git config user.email "github-actions@github.com"
-        git commit -am "Updating Image Tag: ${{ github.sha }}"
-        git push origin master
+ # deploy:
+ #   name: Deploy
+ #   runs-on: ubuntu-latest
+ #   needs: build
+ #   steps:
+ #   - name: Checkout Helm Repo
+ #     uses: actions/checkout@v2
+ #     with:
+ #       repository: destinyarena/helm-charts
+ #       token: ${{ secrets.DESTINYARENA_ACTIONS }}
+ #   - name: Installs yq
+ #     run: |
+ #       sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
+ #       sudo add-apt-repository ppa:rmescandon/yq
+ #       sudo apt update
+ #       sudo apt install yq -y
+ #   - name: Update the Helm Chart values.yaml
+ #     run: |
+ #       yq w -i values.yaml ${{ env.APPNAME }}.image.tag ${{ github.sha }}
+ #   - name: Commit and Push
+ #     run: |
+ #       git config user.name "github-actions"
+ #       git config user.email "github-actions@github.com"
+ #       git commit -am "Updating Image Tag: ${{ github.sha }}"
+ #       git push origin master
 
 
